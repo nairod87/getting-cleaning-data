@@ -1,3 +1,5 @@
+#urlzip <- "https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip"
+#download.file(urlzip,"getdata_projectfiles_UCI HAR Dataset.zip")
 zip_file <- "getdata_projectfiles_UCI HAR Dataset.zip"                  #path to the zip file
 
 testX <- read.table(unz(zip_file,"UCI HAR Dataset/test/X_test.txt"))    #load test set
@@ -17,6 +19,11 @@ mergesubject <- rbind(testsubject,trainsubject,check.names=TRUE)      # merge su
 
 mxms <- mergeX[,meanstdfeat]                      #select only mean and std features
 colnames(mxms) <- features$V2[meanstdfeat]        #set col names
-lam <- split(mxms,mergey)                         #split by activity
-mvalue <- as.data.frame(lapply(lam,function(x){sapply(x,mean)})) #meanvalue of each feature for activity
-colnames(mvalue) <- activityLabel$V2
+
+mxms$subject <- mergesubject$V1
+names(mxms$subject) <- "subject"
+mxms$idactivity <- mergey$V1
+names(mxms$idactivity) <- "idactivity"
+
+tidy <- split(mxms, list(mxms$subject,mxms$idactivity))
+tidy <- lapply(tidy,function(x){sapply(x,mean)})
